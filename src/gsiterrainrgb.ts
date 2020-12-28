@@ -7,19 +7,12 @@ const gsiTerrainDecoder = function (r: number, g: number, b: number): number {
     // https://maps.gsi.go.jp/development/demtile.html
     // r,g,b = [128, 0, 0] means no-data-value in GSI-Terrain-Spec
     // then set minimum height
-    let gsiOffset = 0;
     if (r === 128 && g === 0 && b === 0) {
-        r = 0;
-    } else if (r >= 128) {
-        gsiOffset = -16777216; // 2^24
+        return 0;
+    } else {
+        const gsiOffset = r >= 128 ? 16777216 : 0; // 2^24
+        return (r * 65536 + g * 256 + b - gsiOffset) / 100;
     }
-
-    // RGB-to-height conversion
-    const rScaler = 65536;
-    const gScaler = 256;
-    const bScaler = 1;
-
-    return (r * rScaler + g * gScaler + b * bScaler + gsiOffset) / 100;
 };
 
 class GsiTerrainRGB {
